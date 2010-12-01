@@ -1,10 +1,13 @@
 #!/usr/bin/ruby
 
+# @todo 
+
 require 'rubygems'
 require 'nokogiri'
 require 'open-uri'
 require 'csv'
 
+# I'm sure there's a nicer way to provide default args than if stmts 
 if !ARGV[0]
   puts "Please provide the project name as an argument, eg 'die.rb views'"
   exit
@@ -20,25 +23,27 @@ else
 end
 
 date = "#{Time.now.year}-#{Time.now.month}-#{Time.now.day}"
-
 csvfilename = "#{project}-#{status}-issues-#{date}.csv".downcase
 puts "Exporting #{status} issues for project '#{project}' to #{csvfilename}"
 
 outfile = File.open(csvfilename, 'wb')
 issues  = { } # can i lazy init a hash with first reference?
-i = 0 # not required?
-previous_length = -1
+i = 0 # required?
+previous_length = -1 # just needs to not match ... So could be nil here?
 
-until issues.length == previous_length
+until issues.length == previous_length # stop when we run out of issues
+  # if the URL params were a hash it would be easier to tweak defaults than this long string 
   url = "http://drupal.org/project/issues/#{project}?text=&status=#{status}&priorities=All&categories=All&version=All&component=All&order=last_comment_timestamp&sort=desc&page=#{i.to_s}"
   doc = Nokogiri::HTML(open(url).read)
   previous_length = issues.length
   (doc/'tr').each do |item|
     if (item/'td.views-field-title').inner_html.strip != ''
-      nid = ''
+      nid = '' # this shouldn't be important. I think it's here for voodoo.
       (item/'td.views-field-title a').map { |link|
         nid = link['href'].gsub('/node/','').to_s
       }
+      # I want to tell it HOW to extract this information,
+      # this just tells it WHAT to do, that's not smart. 
       issues[nid.to_s] = {
         'nid' => nid,
         'status' => (item/'td.views-field-sid').inner_text.strip,
@@ -53,7 +58,7 @@ until issues.length == previous_length
       }
     end 
   end
-  if issues.length > previous_length 
+  if issues.length > previous_length # could lose the until and just break out here anyway.
     puts " Page #{i.to_s}, #{issues.length} issues."
   else
     puts " No more issues found."
@@ -62,6 +67,10 @@ until issues.length == previous_length
 end
 
 CSV::Writer.generate(outfile) do |csv|
+  # again - I'd like to be saying, these are the values, this
+  # is how to extract them, go do it ... Need to join the 
+  # three blocks (extract info from table, csv headers,
+  # csv rows) into something coherent.
   csv << [
           'Node ID',
           'URL',
