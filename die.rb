@@ -6,6 +6,7 @@ require 'rubygems'
 require 'nokogiri'
 require 'open-uri'
 require 'csv'
+require 'date'
 
 # I'm sure there's a nicer way to provide default args than if stmts 
 if !ARGV[0]
@@ -22,7 +23,7 @@ else
   status = ARGV[1].capitalize
 end
 
-date = "#{Time.now.year}-#{Time.now.month}-#{Time.now.day}"
+date = Date.today.strftime "%Y-%m-%d"
 csvfilename = "#{project}-#{status}-issues-#{date}.csv".downcase
 puts "Exporting #{status} issues for project '#{project}' to #{csvfilename}"
 
