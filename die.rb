@@ -15,12 +15,11 @@ module DrupalOrg
   # could this just be :pageurl as a custom accessor?
   def get_url(loc)
     @pageurl = 'http://drupal.org/' + loc
-    return @pageurl
   end
 
   # @todo: cache this
   def get_page(loc)
-    return Nokogiri::HTML(open(self.get_url(loc)).read)
+    Nokogiri::HTML(open(self.get_url(loc)).read)
   end
   
 end
@@ -81,7 +80,7 @@ class Issue
         issue.comment_count     = (row/'td.views-field-comment-count').inner_text.strip
         issue.last_updated      = (row/'td.views-field-last-comment-timestamp').inner_text.strip
         issue.assigned_username = (row/'td.views-field-name').inner_text.strip
-        return issue
+        issue
       }
     end
   end
