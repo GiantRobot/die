@@ -143,7 +143,7 @@ issues  = { } # can i lazy init a hash with first reference?
 i = 0 # required?
 previous_length = -1 # just needs to not match ... So could be nil here?
 
-until issues.length == previous_length # stop when we run out of issues
+100.times do |i|
   # if the URL params were a hash it would be easier to tweak defaults than this long string 
   url = "http://drupal.org/project/issues/#{project}?text=&status=#{status}&priorities=All&categories=All&version=All&component=All&order=last_comment_timestamp&sort=desc&page=#{i.to_s}"
   doc = Nokogiri::HTML(open(url).read)
@@ -158,8 +158,8 @@ until issues.length == previous_length # stop when we run out of issues
     puts " Page #{i.to_s}, #{issues.length} issues."
   else
     puts " No more issues found."
+    break
   end
-  i += 1
 end
 
 # write the CSV out
