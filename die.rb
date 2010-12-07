@@ -120,14 +120,14 @@ class Issue
 end  
 
 # I'm sure there's a nicer way to provide default args than if stmts?
-if !ARGV[0]
+unless ARGV[0]
   puts "Please provide the project name as an argument, eg 'die.rb views'"
   exit
 else 
   project = ARGV[0].downcase
 end
 
-if !ARGV[1]
+unless ARGV[1]
   puts "Defaulting to Open issues only. (Options are: Open, All, work_it_out)"
   status = "Open"
 else
