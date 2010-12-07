@@ -65,22 +65,18 @@ class Issue
   def self.from_project_issues_row(row)
     if (row/'td.views-field-title').inner_html.strip != ''
       (row/'td.views-field-title a').map { |link|
-        issue        = Issue.new(link['href'].gsub('/node/','').to_s)
-        # p link['href'].gsub('/node/','').to_s
-        # p issue
-        # but issue.nid is not set in Issue.new("123")? 
-        # so i have to set it :(
-        issue.nid               = link['href'].gsub('/node/','').to_s
-        issue.status            = (row/'td.views-field-sid').inner_text.strip
-        issue.title             = (row/'td.views-field-title').inner_text.strip
-        issue.priority          = (row/'td.views-field-priority').inner_text.strip
-        issue.category          = (row/'td.views-field-category').inner_text.strip
-        issue.version           = (row/'td.views-field-version').inner_text.strip
-        issue.component         = (row/'td.views-field-component').inner_text.strip
-        issue.comment_count     = (row/'td.views-field-comment-count').inner_text.strip
-        issue.last_updated      = (row/'td.views-field-last-comment-timestamp').inner_text.strip
-        issue.assigned_username = (row/'td.views-field-name').inner_text.strip
-        issue
+        Issue.new(link['href'].gsub('/node/','').to_s).tap do |issue|
+          issue.nid               = link['href'].gsub('/node/','').to_s
+          issue.status            = (row/'td.views-field-sid').inner_text.strip
+          issue.title             = (row/'td.views-field-title').inner_text.strip
+          issue.priority          = (row/'td.views-field-priority').inner_text.strip
+          issue.category          = (row/'td.views-field-category').inner_text.strip
+          issue.version           = (row/'td.views-field-version').inner_text.strip
+          issue.component         = (row/'td.views-field-component').inner_text.strip
+          issue.comment_count     = (row/'td.views-field-comment-count').inner_text.strip
+          issue.last_updated      = (row/'td.views-field-last-comment-timestamp').inner_text.strip
+          issue.assigned_username = (row/'td.views-field-name').inner_text.strip
+        end
       }
     end
   end
