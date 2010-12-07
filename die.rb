@@ -134,7 +134,7 @@ else
   status = ARGV[1].capitalize
 end
 
-date = "#{Time.now.year}-#{Time.now.month}-#{Time.now.day}"
+date = Date.today.strftime "%Y-%m-%d"
 csvfilename = "#{project}-#{status}-issues-#{date}.csv".downcase
 puts "Exporting #{status} issues for project '#{project}' to #{csvfilename}"
 
