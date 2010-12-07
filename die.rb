@@ -64,7 +64,7 @@ class Issue
   
   def self.from_project_issues_row(row)
     if (row/'td.views-field-title').inner_html.strip != ''
-      (row/'td.views-field-title a').map { |link|
+      (row/'td.views-field-title a').map do |link|
         Issue.new(link['href'].gsub('/node/','').to_s).tap do |issue|
           issue.nid               = link['href'].gsub('/node/','').to_s
           issue.status            = (row/'td.views-field-sid').inner_text.strip
@@ -77,7 +77,7 @@ class Issue
           issue.last_updated      = (row/'td.views-field-last-comment-timestamp').inner_text.strip
           issue.assigned_username = (row/'td.views-field-name').inner_text.strip
         end
-      }
+      end
     end
   end
   
