@@ -1,5 +1,39 @@
 #!/usr/bin/ruby
 
+module DrupalOrg
+
+  attr_accessor :nid
+
+  @baseurl = 'http://drupal.org/'
+  
+  def getUrl(loc)
+    @pageurl = 'http://drupal.org/' + loc
+    return @pageurl
+  end
+
+  def getPage(loc)
+    p loc
+    return Nokogiri::HTML(open(self.getUrl(loc)).read)
+  end
+  
+end
+
+class Issue
+
+  include DrupalOrg
+
+  def initialize(parameters)
+    # i'd like to either be able to throw 
+    # an ID *or* a set of details at this
+    @nid = parameters['nid']
+  end 
+
+  def loadPage
+    @page = self.getPage('node/'+@nid)
+  end 
+
+end
+
 # @todo 
 
 require 'rubygems'
@@ -44,6 +78,8 @@ until issues.length == previous_length # stop when we run out of issues
       }
       # I want to tell it HOW to extract this information,
       # this just tells it WHAT to do, that's not smart. 
+      issue = Issue.new({ 'nid' => nid })
+      #p issue.loadPage
       issues[nid.to_s] = {
         'nid' => nid,
         'status' => (item/'td.views-field-sid').inner_text.strip,
@@ -66,39 +102,77 @@ until issues.length == previous_length # stop when we run out of issues
   i += 1
 end
 
-CSV::Writer.generate(outfile) do |csv|
-  # again - I'd like to be saying, these are the values, this
-  # is how to extract them, go do it ... Need to join the 
-  # three blocks (extract info from table, csv headers,
-  # csv rows) into something coherent.
-  csv << [
-          'Node ID',
-          'URL',
-          'Status',
-          'Title',
-          'Priority',
-          'Category',
-          'Version',
-          'Component',
-          'Comments',
-          'Updated',
-          'Assigned',          
-         ]
-  issues.each do |issue|
-    csv << [ 
-            issue[0],
-            'http://drupal.org/node/' + issue[0],
-            issue[1]['status'],
-            issue[1]['title'],
-            issue[1]['priority'],
-            issue[1]['category'],
-            issue[1]['version'],
-            issue[1]['component'],
-            issue[1]['comments'],
-            issue[1]['updated'],
-            issue[1]['assigned'],
-           ]
-  end
+require "csv"
+if CSV.const_defined? :Reader
+	CSV::Writer.generate(outfile) do |csv|
+	  # again - I'd like to be saying, these are the values, this
+	  # is how to extract them, go do it ... Need to join the 
+	  # three blocks (extract info from table, csv headers,
+	  # csv rows) into something coherent.
+	  csv << [
+			  'Node ID',
+			  'URL',
+			  'Status',
+			  'Title',
+			  'Priority',
+			  'Category',
+			  'Version',
+			  'Component',
+			  'Comments',
+			  'Updated',
+			  'Assigned',          
+			 ]
+	  issues.each do |issue|
+		csv << [ 
+				issue[0],
+				'http://drupal.org/node/' + issue[0],
+				issue[1]['status'],
+				issue[1]['title'],
+				issue[1]['priority'],
+				issue[1]['category'],
+				issue[1]['version'],
+				issue[1]['component'],
+				issue[1]['comments'],
+				issue[1]['updated'],
+				issue[1]['assigned'],
+			   ]
+	  end
+	end
+else
+	CSV.open(outfile, 'wb') do |csv|
+	  # again - I'd like to be saying, these are the values, this
+	  # is how to extract them, go do it ... Need to join the 
+	  # three blocks (extract info from table, csv headers,
+	  # csv rows) into something coherent.
+	  csv << [
+			  'Node ID',
+			  'URL',
+			  'Status',
+			  'Title',
+			  'Priority',
+			  'Category',
+			  'Version',
+			  'Component',
+			  'Comments',
+			  'Updated',
+			  'Assigned',          
+			 ]
+	  issues.each do |issue|
+		csv << [ 
+				issue[0],
+				'http://drupal.org/node/' + issue[0],
+				issue[1]['status'],
+				issue[1]['title'],
+				issue[1]['priority'],
+				issue[1]['category'],
+				issue[1]['version'],
+				issue[1]['component'],
+				issue[1]['comments'],
+				issue[1]['updated'],
+				issue[1]['assigned'],
+			   ]
+	  end
+	end
 end
 
 puts "Exported #{issues.length} issues to #{csvfilename}"
